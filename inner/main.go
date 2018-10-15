@@ -7,6 +7,7 @@ import (
 	"net"
 	"strings"
 	"time"
+	"ConfigAdapter/JsonConfig"
 )
 
 // 外网服务器关系维护
@@ -111,17 +112,28 @@ func (o *OuterHolder) newExchange() {
 	go func() {
 		io.Copy(outConn, proxyConn)
 		proxyConn.Close()
+		log.Println("关闭到转发地址的连接")
 	}()
 	go func() {
 		io.Copy(proxyConn, outConn)
 		outConn.Close()
+		log.Println("关闭到外部服务器的连接")
 	}()
 }
+
+type Config struct {
+	CommunicateAddress string
+	ServerAddress      string
+	ProxyAddress       string
+}
+
 func main() {
+	c := &Config{}
+	JsonConfig.Load("config.json", c)
 	h := &OuterHolder{
-		CommunicateAddress: "localhost:9091",
-		ServerAddress:      "localhost:9092",
-		ProxyAddress:       "localhost:80",
+		CommunicateAddress: c.CommunicateAddress,
+		ServerAddress:      c.ServerAddress,
+		ProxyAddress:       c.ProxyAddress,
 	}
 	h.Start()
 }

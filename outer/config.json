@@ -1,0 +1,5 @@
+{
+  "CommunicateServerAddress": "localhost:9090",
+  "InnerServerAddress": "localhost:9091",
+  "OuterServerAddress": "localhost:8080"
+}
