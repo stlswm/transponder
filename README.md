@@ -76,9 +76,9 @@ go get https://gitee.com/stlswm/transponder.git
 		
 #### nginx配置
 
-    为了不暴露outer所监听的外部地址，可以使用nginx配置转发，同时也可以实现多主机配置。
+为了不暴露outer所监听的外部地址，可以使用nginx配置转发，同时也可以实现多主机配置。
     
-    todo
+todo
 
 #### 参与贡献
 
