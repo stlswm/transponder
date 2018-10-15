@@ -23,7 +23,7 @@ func (c *CommunicateServer) StartServer() {
 	tcpListener, _ := net.ListenTCP("tcp", tcpAddr)
 	for {
 		tcpConn, _ := tcpListener.AcceptTCP()
-		log.Println("内部服务器通讯服务接收新连接：" + tcpConn.RemoteAddr().String())
+		//log.Println("内部服务器通讯服务接收新连接：" + tcpConn.RemoteAddr().String())
 		if c.innerConn != nil {
 			c.innerConn.Close()
 			c.innerConn = nil
@@ -66,7 +66,7 @@ func (c *CommunicateServer) sendToInnerServer(data interface{}) error {
 
 // 新连接请求
 func (c *CommunicateServer) NewClient() (error, net.Conn) {
-	log.Println("向内部服务器发送新连接请求")
+	//log.Println("向内部服务器发送新连接请求")
 	err := c.sendToInnerServer(struct {
 		E int
 	}{
@@ -80,6 +80,7 @@ func (c *CommunicateServer) NewClient() (error, net.Conn) {
 			return errors.New("get connection timeout"), nil
 		}
 	}
+
 	return err, nil
 }
 

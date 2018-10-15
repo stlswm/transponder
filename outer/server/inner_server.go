@@ -18,7 +18,7 @@ func (i *InnerServer) StartServer() {
 	tcpListener, _ := net.ListenTCP("tcp", tcpAddr)
 	for {
 		tcpConn, _ := tcpListener.AcceptTCP()
-		log.Println("内部服务器接收新连接：" + tcpConn.RemoteAddr().String())
+		//log.Println("内部服务器接收新连接：" + tcpConn.RemoteAddr().String())
 		i.innerQueue <- tcpConn
 	}
 }

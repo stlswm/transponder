@@ -26,7 +26,7 @@ func (o *OuterServer) StartServer() {
 
 // io转发
 func (o *OuterServer) IOExchange(outConn net.Conn) {
-	log.Println("外部服务:" + o.Address + "，接收新连接启动转发...")
+	//log.Println("外部服务:" + o.Address + "，接收新连接启动转发...")
 	outConn.SetReadDeadline(time.Now().Add(time.Second * 30))
 	outConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
 	err, innerConn := o.communicateServer.NewClient()
@@ -41,12 +41,12 @@ func (o *OuterServer) IOExchange(outConn net.Conn) {
 	go func() {
 		io.Copy(innerConn, outConn)
 		outConn.Close()
-		log.Println("关闭到客户端的连接")
+		//log.Println("关闭到客户端的连接")
 	}()
 	go func() {
 		io.Copy(outConn, innerConn)
 		innerConn.Close()
-		log.Println("关闭到内部服务器的连接")
+		//log.Println("关闭到内部服务器的连接")
 	}()
 }
 

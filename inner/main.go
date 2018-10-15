@@ -65,26 +65,29 @@ func (o *OuterHolder) read() {
 			o.restart()
 		}
 		o.communicateReadBuffer = string(buf[0:n])
-		pos := strings.IndexAny(o.communicateReadBuffer, "\r")
-		if pos == -1 {
-			continue
-		}
-		nowPackage := o.communicateReadBuffer[0:pos]
-		o.communicateReadBuffer = o.communicateReadBuffer[pos:]
-		var nowPackageJson = struct {
-			E int
-		}{}
-		err = json.Unmarshal([]byte(nowPackage), &nowPackageJson)
-		if err != nil {
-			log.Println(err.Error())
-			continue
-		}
-		switch nowPackageJson.E {
-		case 1:
-			//申请新连接
-			o.newExchange()
-		case 0:
-			//ping
+		for {
+			pos := strings.IndexAny(o.communicateReadBuffer, "\r")
+			if pos == -1 {
+				break
+			}
+			nowPackage := o.communicateReadBuffer[0 : pos+1]
+			nowPackage = strings.TrimRight(nowPackage, "\r")
+			o.communicateReadBuffer = o.communicateReadBuffer[pos+1:]
+			var nowPackageJson = struct {
+				E int
+			}{}
+			err = json.Unmarshal([]byte(nowPackage), &nowPackageJson)
+			if err != nil {
+				log.Println(err.Error())
+				continue
+			}
+			switch nowPackageJson.E {
+			case 1:
+				//申请新连接
+				o.newExchange()
+			case 0:
+				//ping
+			}
 		}
 	}
 }
