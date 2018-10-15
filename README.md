@@ -57,16 +57,20 @@ go get https://gitee.com/stlswm/transponder.git
 
    3.1 先启动外网服务 
    
+   保证配置文件config.json与可执行文件在同一目录
+   
     
-    linux : ./outer/main (后台执行:nohup ./outer/main >> /tmp/transponder_outer.log 2>&1 &)
+    linux : ./bin/outer/outer (后台执行:nohup ./bin/outer/outer >> /tmp/transponder_outer.log 2>&1 &)
     
-    windows: 通过cmd命令行运行outer/main.exe
+    windows: 通过cmd命令行运行 /bin/outer/outer.exe
         
    3.2 再启动内网服务 ./inner/main (或inner/main.exe)
    
-    linux : ./inner/main (后台执行:nohup ./inner/main >> /tmp/transponder_inner.log 2>&1 &)
+   保证配置文件config.json与可执行文件在同一目录
+   
+    linux : ./bin/inner/inner (后台执行:nohup ./bin/inner/inner >> /tmp/transponder_inner.log 2>&1 &)
     
-    windows: 通过cmd命令行运行inner/main.exe
+    windows: 通过cmd命令行运行 /bin/inner/inner.exe
 		
 3. nginx配置
 
