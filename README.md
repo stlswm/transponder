@@ -74,7 +74,7 @@ go get https://gitee.com/stlswm/transponder.git
     
     windows: 通过cmd命令行运行 /bin/inner/inner.exe
 		
-3. nginx配置
+#### nginx配置
 
     为了不暴露outer所监听的外部地址，可以使用nginx配置转发，同时也可以实现多主机配置。
     
