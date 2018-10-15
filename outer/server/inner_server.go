@@ -26,7 +26,6 @@ func (i *InnerServer) StartServer() {
 // 获取内部服务实例
 func NewInnerServer() *InnerServer {
 	i := &InnerServer{
-		Address:    ":9092",
 		innerQueue: make(chan net.Conn, 10240),
 	}
 	go i.StartServer()

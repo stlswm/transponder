@@ -88,7 +88,6 @@ func (c *CommunicateServer) NewClient() (error, net.Conn) {
 func NewCommunicateServer(i *InnerServer) *CommunicateServer {
 	c := &CommunicateServer{
 		innerServer: i,
-		Address:     ":9091",
 	}
 	return c
 }

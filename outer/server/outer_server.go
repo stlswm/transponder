@@ -54,7 +54,6 @@ func (o *OuterServer) IOExchange(outConn net.Conn) {
 func NewOuterServer(c *CommunicateServer) *OuterServer {
 	o := &OuterServer{
 		communicateServer: c,
-		Address:           ":9090",
 	}
 	return o
 }
