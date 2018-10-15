@@ -119,8 +119,8 @@ func (o *OuterHolder) newExchange() {
 }
 func main() {
 	h := &OuterHolder{
-		CommunicateAddress: "localhost:9090",
-		ServerAddress:      "localhost:9091",
+		CommunicateAddress: "localhost:9091",
+		ServerAddress:      "localhost:9092",
 		ProxyAddress:       "localhost:80",
 	}
 	h.Start()
