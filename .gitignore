@@ -1,6 +1,8 @@
 /inner/.idea
 /inner/*.exe
 /inner/*.exe~
+/inner/main
 /outer/.idea
 /outer/*.exe
 /outer/*.exe~
+/outer/main
