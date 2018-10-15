@@ -76,7 +76,7 @@ func (c *CommunicateServer) NewClient() (error, net.Conn) {
 		select {
 		case conn := <-c.innerServer.innerQueue:
 			return nil, conn
-		case <-time.After(5 * time.Second): //超时5s
+		case <-time.After(10 * time.Second): //超时10秒
 			return errors.New("get connection timeout"), nil
 		}
 	}

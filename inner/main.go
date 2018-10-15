@@ -91,7 +91,7 @@ func (o *OuterHolder) read() {
 
 // io 交换
 func (o *OuterHolder) newExchange() {
-	log.Println("发起到外网服务器" + o.ServerAddress + "的连接")
+	//log.Println("发起到外网服务器" + o.ServerAddress + "的连接")
 	outConn, err := net.Dial("tcp", o.ServerAddress)
 	if err != nil {
 		log.Println(err.Error())
@@ -99,7 +99,7 @@ func (o *OuterHolder) newExchange() {
 	}
 	outConn.SetReadDeadline(time.Now().Add(time.Second * 30))
 	outConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
-	log.Println("发起到本地服务" + o.ProxyAddress + "的连接")
+	//log.Println("发起到本地服务" + o.ProxyAddress + "的连接")
 	proxyConn, err := net.Dial("tcp", o.ProxyAddress)
 	if err != nil {
 		outConn.Close()
@@ -108,16 +108,16 @@ func (o *OuterHolder) newExchange() {
 	}
 	proxyConn.SetReadDeadline(time.Now().Add(time.Second * 30))
 	proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
-	log.Println("连接交换")
+	//log.Println("连接交换")
 	go func() {
 		io.Copy(outConn, proxyConn)
 		proxyConn.Close()
-		log.Println("关闭到转发地址的连接")
+		//log.Println("关闭到转发地址的连接")
 	}()
 	go func() {
 		io.Copy(proxyConn, outConn)
 		outConn.Close()
-		log.Println("关闭到外部服务器的连接")
+		//log.Println("关闭到外部服务器的连接")
 	}()
 }
 
