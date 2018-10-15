@@ -41,10 +41,12 @@ func (o *OuterServer) IOExchange(outConn net.Conn) {
 	go func() {
 		io.Copy(innerConn, outConn)
 		outConn.Close()
+		log.Println("关闭外部连接")
 	}()
 	go func() {
 		io.Copy(outConn, innerConn)
 		innerConn.Close()
+		log.Println("关闭内部连接")
 	}()
 }
 

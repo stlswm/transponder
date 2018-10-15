@@ -38,7 +38,6 @@ func (c *CommunicateServer) Ping() {
 	for {
 		<-t.C
 		if c.innerConn != nil {
-			log.Println("ping 内部服务器通讯客户端")
 			c.sendToInnerServer(struct {
 				E int
 			}{
