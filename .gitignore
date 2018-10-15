@@ -1,0 +1,6 @@
+/transponder_inner/.idea
+/transponder_inner/*.exe
+/transponder_inner/*.exe~
+/transponder_outer/.idea
+/transponder_outer/*.exe
+/transponder_outer/*.exe~
