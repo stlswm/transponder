@@ -66,7 +66,7 @@ func (c *CommunicateServer) sendToInnerServer(data interface{}) error {
 
 // 新连接请求
 func (c *CommunicateServer) NewClient() (error, net.Conn) {
-	log.Println("发起新连接请求")
+	log.Println("向内部服务器发送新连接请求")
 	err := c.sendToInnerServer(struct {
 		E int
 	}{
