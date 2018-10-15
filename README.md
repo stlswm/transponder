@@ -27,7 +27,9 @@ go get https://gitee.com/stlswm/transponder.git
 
 #### 使用说明
 
-1. 外网服务端
+1. git clone 本项目或下载可执行文件（文件在bin目录下）
+
+2. 外网服务端
 
     配置文件：
     
@@ -40,7 +42,7 @@ go get https://gitee.com/stlswm/transponder.git
             "OuterServerAddress": "0.0.0.0:8080"//外部服务监听地址
         }
 
-2. 内网服务端
+3. 内网服务端
 
     配置文件：
     
@@ -53,9 +55,9 @@ go get https://gitee.com/stlswm/transponder.git
             "ProxyAddress": "localhost:80"//本地目标服务
         }
     
-3. 启动
+4. 启动
 
-   3.1 先启动外网服务 
+   4.1 先启动外网服务 
    
    保证配置文件config.json与可执行文件在同一目录
    
@@ -64,7 +66,7 @@ go get https://gitee.com/stlswm/transponder.git
     
     windows: 通过cmd命令行运行 /bin/outer/outer.exe
         
-   3.2 再启动内网服务 ./inner/main (或inner/main.exe)
+   4.2 再启动内网服务 ./inner/main (或inner/main.exe)
    
    保证配置文件config.json与可执行文件在同一目录
    
