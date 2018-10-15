@@ -39,8 +39,8 @@ go get https://gitee.com/stlswm/transponder.git
     配置文件：
     
         {
-            "CommunicateAddress": "localhost:9090",//外网服务器通讯地址
-            "ServerAddress": "localhost:9091",//外网服务器对内网服务器的地址
+            "CommunicateAddress": "localhost:9090",//外网服务器通讯地址（这里填写外网服务器的CommunicateServerAddress）
+            "ServerAddress": "localhost:9091",//外网服务器对内网服务器的地址（这里填写外网服务器的InnerServerAddress）
             "ProxyAddress": "localhost:80"//本地目标服务
         }
     
