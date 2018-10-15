@@ -1,6 +1,6 @@
 package main
 
-import "transponder_outer/server"
+import "transponder/outer/server"
 
 func main() {
 	innerServer := server.NewInnerServer()
