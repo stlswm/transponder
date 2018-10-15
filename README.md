@@ -66,7 +66,7 @@ go get https://gitee.com/stlswm/transponder.git
     
     windows: 通过cmd命令行运行 /bin/outer/outer.exe
         
-   4.2 再启动内网服务 ./inner/main (或inner/main.exe)
+   4.2 再启动内网服务
    
    保证配置文件config.json与可执行文件在同一目录
    
