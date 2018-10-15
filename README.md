@@ -39,22 +39,24 @@ go get https://gitee.com/stlswm/transponder.git
     配置文件：
     
         {
-            "CommunicateServerAddress": "0.0.0.0:9090",//通讯服务监听地址，内网服务器会发起一个到该端口的连接用于与外网服务器互通有无
-            "InnerServerAddress": "0.0.0.0:9091",//内网服务监听地址，内网服务器收到外网服务器通知后，会发起到该端口的连接用于处理客户端的请求
-            "OuterServerAddress": "0.0.0.0:8080"//外部服务监听地址，
+            "CommunicateAddress": "localhost:9090",//外网服务器通讯地址
+            "ServerAddress": "localhost:9091",//外网服务器对内网服务器的地址
+            "ProxyAddress": "localhost:80"//本地目标服务
         }
     
 3. 启动
 
    3.1 先启动外网服务 
    
-    linux : ./outer (后台执行:nohup ./outer >> /tmp/transponder_outer.log 2>&1 &)
-    windows: outer.exe
+    linux : ./outer/main (后台执行:nohup ./outer/main >> /tmp/transponder_outer.log 2>&1 &)
+    
+    windows: 通过cmd命令行运行outer/main.exe
         
-   3.2 再启动内网服务 ./inner (或inner.exe)
+   3.2 再启动内网服务 ./inner/main (或inner/main.exe)
    
-    linux : ./inner (后台执行:nohup ./inner >> /tmp/transponder_inner.log 2>&1 &)
-    windows: inner.exe
+    linux : ./inner/main (后台执行:nohup ./inner/main >> /tmp/transponder_inner.log 2>&1 &)
+    
+    windows: 通过cmd命令行运行inner/main.exe
 		
 3. nginx配置
 
