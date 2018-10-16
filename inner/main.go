@@ -13,7 +13,6 @@ import (
 // 外网服务器关系维护
 type OuterHolder struct {
 	CommunicateAddress    string
-	communicateConnId     uint64
 	communicateConn       net.Conn
 	communicateReadBuffer string
 	ServerAddress         string
@@ -23,15 +22,7 @@ type OuterHolder struct {
 // 启动
 func (o *OuterHolder) Start() {
 	o.connection()
-}
-
-// 重新启动
-func (o *OuterHolder) restart() {
-	if o.communicateConn != nil {
-		o.communicateConn.Close()
-		o.communicateConn = nil
-	}
-	o.connection()
+	o.read()
 }
 
 // 连接到服务器
@@ -40,31 +31,41 @@ func (o *OuterHolder) connection() {
 	sc, err := net.Dial("tcp", o.CommunicateAddress)
 	if err != nil {
 		//连接错误3秒后重新连接
-		log.Println("连接外网通讯服务器错误3秒后重新连接")
-		log.Println(err.Error())
+		log.Println("连接外网通讯服务器错误" + err.Error() + "3秒后重新连接")
 		time.AfterFunc(time.Second*3, func() {
 			o.connection()
 		})
 		return
 	}
-	o.communicateConnId++
 	o.communicateConn = sc
 	o.communicateReadBuffer = ""
-	go o.read(o.communicateConnId)
+}
+
+// 关闭连接
+func (o *OuterHolder) close() {
+	if o.communicateConn == nil {
+		return
+	}
+	o.communicateConn.Close()
+	o.communicateConn = nil
 }
 
 // 读取主服务器数据
-func (o *OuterHolder) read(id uint64) {
+func (o *OuterHolder) read() {
 	for {
-		if o.communicateConnId != id {
-			return
+		if o.communicateConn == nil {
+			time.Sleep(time.Second * 3)
+			continue
 		}
 		buf := make([]byte, 512)
 		n, err := o.communicateConn.Read(buf)
 		if err != nil {
-			log.Println("read from remote error:" + err.Error())
-			o.restart()
-			return
+			log.Println("通讯服务连接异常：" + "read from remote error:" + err.Error() + ",正在关闭，3秒后重新连接")
+			o.close()
+			time.AfterFunc(time.Second*3, func() {
+				o.connection()
+			})
+			continue
 		}
 		o.communicateReadBuffer = string(buf[0:n])
 		for {
