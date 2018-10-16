@@ -40,8 +40,8 @@ func (c *CommunicateServer) StartServer() {
 		tcpConn, _ := listener.AcceptTCP()
 		//log.Println("内部服务器通讯服务接收新连接：" + tcpConn.RemoteAddr().String())
 		if c.innerConn != nil {
-			c.innerConn.Close()
-			c.innerConn = nil
+			/*c.innerConn.Close()
+			c.innerConn = nil*/
 		}
 		c.innerConn = tcpConn
 	}
