@@ -42,8 +42,8 @@ func (c *CommunicateServer) StartServer() {
 		log.Println("accept")
 		if c.innerConn != nil {
 			log.Println("not nil")
-			/*c.innerConn.Close()
-			c.innerConn = nil*/
+			c.innerConn.Close()
+			c.innerConn = nil
 		}
 		c.innerConn = tcpConn
 	}
@@ -105,7 +105,6 @@ func (c *CommunicateServer) NewClient() (error, net.Conn) {
 func NewCommunicateServer(i *InnerServer) *CommunicateServer {
 	c := &CommunicateServer{
 		innerServer: i,
-		innerConn:   nil,
 	}
 	return c
 }

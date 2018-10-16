@@ -13,6 +13,7 @@ import (
 // 外网服务器关系维护
 type OuterHolder struct {
 	CommunicateAddress    string
+	communicateConnId     uint64
 	communicateConn       net.Conn
 	communicateReadBuffer string
 	ServerAddress         string
@@ -22,7 +23,6 @@ type OuterHolder struct {
 // 启动
 func (o *OuterHolder) Start() {
 	o.connection()
-	o.read()
 }
 
 // 重新启动
@@ -47,22 +47,24 @@ func (o *OuterHolder) connection() {
 		})
 		return
 	}
-	o.communicateReadBuffer = ""
+	o.communicateConnId++
 	o.communicateConn = sc
+	o.communicateReadBuffer = ""
+	go o.read(o.communicateConnId)
 }
 
 // 读取主服务器数据
-func (o *OuterHolder) read() {
+func (o *OuterHolder) read(id uint64) {
 	for {
-		if o.communicateConn == nil {
-			time.Sleep(time.Second * 3)
-			continue
+		if o.communicateConnId != id {
+			return
 		}
 		buf := make([]byte, 512)
 		n, err := o.communicateConn.Read(buf)
 		if err != nil {
 			log.Println("read from remote error:" + err.Error())
 			o.restart()
+			return
 		}
 		o.communicateReadBuffer = string(buf[0:n])
 		for {
