@@ -6,6 +6,7 @@ import (
 	"log"
 	"net"
 	"time"
+	"strings"
 )
 
 // 内部服务通讯对象
@@ -18,11 +19,25 @@ type CommunicateServer struct {
 // 启动服务
 func (c *CommunicateServer) StartServer() {
 	log.Println("启动内部服务器通讯服务，" + c.Address)
+	addrSlice := strings.Split(c.Address, "://")
+	if len(addrSlice) < 2 {
+		panic(c.Address + " format error.")
+	}
+	if addrSlice[0] != "tcp" {
+		panic("communicate server only support tcp.")
+	}
+	tcpAddr, err := net.ResolveTCPAddr("tcp", addrSlice[1])
+	if err != nil {
+		panic(err)
+	}
+	listener, err := net.ListenTCP("tcp", tcpAddr)
+	if err != nil {
+		panic(err)
+	}
+	defer listener.Close()
 	go c.Ping()
-	tcpAddr, _ := net.ResolveTCPAddr("tcp", c.Address)
-	tcpListener, _ := net.ListenTCP("tcp", tcpAddr)
 	for {
-		tcpConn, _ := tcpListener.AcceptTCP()
+		tcpConn, _ := listener.AcceptTCP()
 		//log.Println("内部服务器通讯服务接收新连接：" + tcpConn.RemoteAddr().String())
 		if c.innerConn != nil {
 			c.innerConn.Close()

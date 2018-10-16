@@ -5,6 +5,7 @@ import (
 	"log"
 	"net"
 	"time"
+	"strings"
 )
 
 // 外部服务对象
@@ -16,11 +17,41 @@ type OuterServer struct {
 // 启动服务
 func (o *OuterServer) StartServer() {
 	log.Println("启动外部服务：" + o.Address)
-	tcpAddr, _ := net.ResolveTCPAddr("tcp", o.Address)
-	tcpListener, _ := net.ListenTCP("tcp", tcpAddr)
-	for {
-		tcpConn, _ := tcpListener.AcceptTCP()
-		go o.IOExchange(tcpConn)
+	addrSlice := strings.Split(o.Address, "://")
+	if len(addrSlice) < 2 {
+		panic(o.Address + " format error.")
+	}
+	switch addrSlice[0] {
+	case "tcp":
+		tcpAddr, err := net.ResolveTCPAddr("tcp", addrSlice[1])
+		if err != nil {
+			panic(err)
+		}
+		listener, err := net.ListenTCP("tcp", tcpAddr)
+		if err != nil {
+			panic(err)
+		}
+		defer listener.Close()
+		for {
+			conn, _ := listener.AcceptTCP()
+			go o.IOExchange(conn)
+		}
+	case "unix":
+		unixAddr, err := net.ResolveUnixAddr("unix", addrSlice[1])
+		if err != nil {
+			panic(err)
+		}
+		listener, err := net.ListenUnix("unix", unixAddr)
+		if err != nil {
+			panic(err)
+		}
+		defer listener.Close()
+		for {
+			conn, _ := listener.Accept()
+			go o.IOExchange(conn)
+		}
+	default:
+		panic("net type " + addrSlice[0] + " is not allow.")
 	}
 }
 

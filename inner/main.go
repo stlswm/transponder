@@ -133,10 +133,35 @@ type Config struct {
 func main() {
 	c := &Config{}
 	JsonConfig.Load("config.json", c)
+	//配置文件地址格式检查
+	addrSlice := strings.Split(c.CommunicateAddress, "://")
+	if len(addrSlice) < 2 {
+		panic(c.CommunicateAddress + " format error.")
+	}
+	if addrSlice[0] != "tcp" {
+		panic("address to communicate only support tcp.")
+	}
+	communicateAddress := addrSlice[1]
+	addrSlice = strings.Split(c.ServerAddress, "://")
+	if len(addrSlice) < 2 {
+		panic(c.ServerAddress + " format error.")
+	}
+	if addrSlice[0] != "tcp" {
+		panic("address to server only support tcp.")
+	}
+	serverAddress := addrSlice[1]
+	addrSlice = strings.Split(c.ProxyAddress, "://")
+	if len(addrSlice) < 2 {
+		panic(c.ProxyAddress + " format error.")
+	}
+	if addrSlice[0] != "tcp" {
+		panic("proxy address only support tcp.")
+	}
+	proxyAddress := addrSlice[1]
 	h := &OuterHolder{
-		CommunicateAddress: c.CommunicateAddress,
-		ServerAddress:      c.ServerAddress,
-		ProxyAddress:       c.ProxyAddress,
+		CommunicateAddress: communicateAddress,
+		ServerAddress:      serverAddress,
+		ProxyAddress:       proxyAddress,
 	}
 	h.Start()
 }
