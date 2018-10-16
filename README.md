@@ -44,7 +44,7 @@ go get https://gitee.com/stlswm/transponder.git
             "CommunicateServerAddress": "tcp://0.0.0.0:9090",//通讯服务监听地址，内网服务器会发起一个到该端口的连接用于与外网服务器互通有无
             "InnerServerAddress": "tcp://0.0.0.0:9091",//内网服务监听地址，内网服务器收到外网服务器通知后，会发起到该端口的连接用于处理客户端的请求
             "OuterServerAddress": "tcp://0.0.0.0:8080"//外部服务监听地址
-            //"OuterServerAddress": "unix://transponderouter"//linux unix套节字的网络模式（linux建议使用该模式）
+            //"OuterServerAddress": "unix://transponderouter"//linux unix套接字的网络模式（linux建议使用该模式）
         }
 
 3. 内网服务端
@@ -81,9 +81,41 @@ go get https://gitee.com/stlswm/transponder.git
 		
 #### nginx配置
 
-为了不暴露outer所监听的外部地址，可以使用nginx配置转发，同时也可以实现多主机配置。
-    
-todo
+可以使用nginx配置转发，同时也可以实现多主机配置。
+
+linux服务器推荐使用unix套接字网络模式加快转发效率。
+
+windows只能使用端口转发。
+
+    server {
+		listen 80;
+		server_name  www.abc.com;
+	 
+		access_log  /var/log/www.abc.com.access.log  main;
+		error_log  /var/log/www.abc.com.error.log;
+		#root   html;
+		#index  index.html index.htm index.php;
+	 
+		#send request to transponderouter.socket
+		location / {
+			proxy_pass http://unix:/var/run/transponderouter.socket:/;
+			
+			#proxy settings
+			proxy_redirect     off;
+			proxy_set_header   Host             $host;
+			proxy_set_header   X-Real-IP        $remote_addr;
+			proxy_set_header   X-Forwarded-For  $proxy_add_x_forwarded_for;
+			proxy_next_upstream error timeout invalid_header http_500 http_502 http_503 http_504;
+			proxy_max_temp_file_size 0;
+			proxy_connect_timeout      90;
+			proxy_send_timeout         90;
+			proxy_read_timeout         90;
+			proxy_buffer_size          4k;
+			proxy_buffers              4 32k;
+			proxy_busy_buffers_size    64k;
+			proxy_temp_file_write_size 64k;
+	   }
+	}
 
 #### 参与贡献
 
