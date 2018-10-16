@@ -50,6 +50,7 @@ func (o *OuterServer) StartServer() {
 		if err != nil {
 			panic(err)
 		}
+		os.Chmod(addrSlice[1], 0777)
 		defer listener.Close()
 		for {
 			conn, _ := listener.Accept()
