@@ -68,7 +68,7 @@ go get https://gitee.com/stlswm/transponder.git
             "CommunicateServerAddress": "tcp://0.0.0.0:9090",//通讯服务监听地址，内网服务器会发起一个到该端口的连接用于与外网服务器互通有无
             "InnerServerAddress": "tcp://0.0.0.0:9091",//内网服务监听地址，内网服务器收到外网服务器通知后，会发起到该端口的连接用于处理客户端的请求
             "OuterServerAddress": "tcp://0.0.0.0:8080"//外部服务监听地址
-            //"OuterServerAddress": "unix://transponderouter"//linux unix套接字的网络模式（linux建议使用该模式）
+            //"OuterServerAddress": "unix:///var/run/transponderouter"//linux unix套接字的网络模式（linux建议使用该模式）
         }
 
 3. 内网服务端
