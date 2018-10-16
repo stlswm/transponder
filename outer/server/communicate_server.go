@@ -65,18 +65,19 @@ func (c *CommunicateServer) Ping() {
 // 发送数据到内网服务器
 func (c *CommunicateServer) sendToInnerServer(data interface{}) error {
 	dataByte, err := json.Marshal(data)
-	if err == nil {
-		if c.innerConn != nil {
-			_, err := c.innerConn.Write([]byte(string(dataByte) + "\r"))
-			if err != nil {
-				c.innerConn.Close()
-				c.innerConn = nil
-				return err
-			}
-			return nil
-		}
+	if err != nil {
+		return err
 	}
-	return err
+	if c.innerConn != nil {
+		_, err := c.innerConn.Write([]byte(string(dataByte) + "\r"))
+		if err != nil {
+			c.innerConn.Close()
+			c.innerConn = nil
+			return err
+		}
+		return nil
+	}
+	return errors.New("the connection between inner server and outer server is nil")
 }
 
 // 新连接请求
