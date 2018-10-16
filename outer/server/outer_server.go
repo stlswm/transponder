@@ -6,6 +6,7 @@ import (
 	"net"
 	"time"
 	"strings"
+	"os"
 )
 
 // 外部服务对象
@@ -37,6 +38,10 @@ func (o *OuterServer) StartServer() {
 			go o.IOExchange(conn)
 		}
 	case "unix":
+		_, err := os.Stat(addrSlice[1])
+		if err == nil {
+			os.Remove(addrSlice[1])
+		}
 		unixAddr, err := net.ResolveUnixAddr("unix", addrSlice[1])
 		if err != nil {
 			panic(err)

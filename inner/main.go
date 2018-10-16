@@ -61,7 +61,7 @@ func (o *OuterHolder) read() {
 		buf := make([]byte, 512)
 		n, err := o.communicateConn.Read(buf)
 		if err != nil {
-			log.Println(err.Error())
+			log.Println("read from remote error:" + err.Error())
 			o.restart()
 		}
 		o.communicateReadBuffer = string(buf[0:n])
