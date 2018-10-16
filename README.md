@@ -53,7 +53,7 @@ go get https://gitee.com/stlswm/transponder.git
 3、 o啦
 
 
-#### 使用说明
+#### 配置说明
 
 1. git clone 本项目或下载可执行文件（文件在bin目录下）
 
@@ -107,7 +107,7 @@ go get https://gitee.com/stlswm/transponder.git
 
 可以使用nginx配置转发，同时也可以实现多主机配置。
 
-linux服务器推荐使用unix套接字网络模式加快转发效率，并且可以少占用一个端口（）。
+linux服务器推荐使用unix套接字网络模式加快转发效率，并且可以少占用一个端口。
 
 windows只能使用端口转发。
 
