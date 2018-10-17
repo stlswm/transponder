@@ -7,6 +7,10 @@ transponder内网穿透工具分为两端：外网服务器端与内网服务器
 
 该工具支持windows与linux等不同的操作系统。
 
+该项目使用的为P2P中继模式非UDP打洞模式
+
+参考链接：https://blog.csdn.net/yunlianglinfeng/article/details/54018113
+
 #### 软件架构
 golang
 
@@ -24,7 +28,7 @@ golang
 
 ### 工作流程
 
-![Alt text](http://www.stlswm.com/uploads/20181017101414.png "optional title")
+![Alt text](http://www.stlswm.com/uploads/20181017101414.png "工作流程")
 
 1、外网服务unix套接字（或8080端口）接收外网网络请求
 
