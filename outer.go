@@ -13,7 +13,7 @@ type OutConfig struct {
 
 func main() {
 	c := &OutConfig{}
-	JsonConfig.Load("out.config.json", c)
+	JsonConfig.Load("outer.config.json", c)
 	//启动内部服务
 	innerServer := outer.NewInnerServer()
 	innerServer.AuthKey = c.AuthKey

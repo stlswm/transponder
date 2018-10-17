@@ -1,0 +1,5 @@
+{
+  "InnerServerAddress": "tcp://0.0.0.0:9090",
+  "OuterServerAddress": "tcp://0.0.0.0:8080",
+  "AuthKey": "12345"
+}
