@@ -1,5 +1,0 @@
-{
-  "CommunicateAddress": "tcp://localhost:9090",
-  "ServerAddress": "tcp://localhost:9091",
-  "ProxyAddress": "tcp://localhost:80"
-}

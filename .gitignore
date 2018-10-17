@@ -1,10 +1,6 @@
-/inner/.idea
-/inner/*.exe
-/inner/*.exe~
-/inner/main
-/inner/config.json
-/outer/.idea
-/outer/*.exe
-/outer/*.exe~
-/outer/main
-/outer/config.json
+*.config.json
+/outer.exe
+/outer.exe~
+/outer
+/inner
+/.idea

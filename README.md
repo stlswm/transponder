@@ -7,7 +7,7 @@ transponder内网穿透工具分为两端：外网服务器端与内网服务器
 
 该工具支持windows与linux等不同的操作系统。
 
-该项目使用的为P2P中继模式非UDP打洞模式
+该项目使用的为P2P中继模式非UDP打洞模式（适用于http协议的内网穿透）
 
 参考链接：https://blog.csdn.net/yunlianglinfeng/article/details/54018113
 
@@ -17,28 +17,26 @@ golang
 
 #### 工作原理
 
-1、外网服务器监听端口9090（默认，防火墙要添加入站规则）为内网服务器提供服务，用于内网服务器与外网服务器的通讯
+1、外网服务器监听端口9090（默认，防火墙要添加入站规则）为内网服务器提供服务，用于内网服务器与外网服务器的通讯并暂存内网服务器反向连接进入连接池
 
-2、外网服务器监听端口9091（默认，防火墙要添加入站规则）为内网服务器提供服务，用于接收内网服务器连接，暂存内网服务器连接进入连接池，将来会使用连接池中的连接为外网连接提供服务
+2、外网服务器使用使用unix套接字提供外网服务（或监听端口8080，防火墙要添加入站规则），用于接收nginx转发过来的请求（也可以直接监听端口）
 
-3、外网服务器使用使用unix套接字提供外网服务（或监听端口8080，防火墙要添加入站规则），用于接收nginx转发过来的请求
-
-4、内网服务器连接9090端口并保持心跳，保证与外网服务器的通讯
+3、通过客户端连接到外网服务8080的连接、内网服务器到外网服务器9090的连接通路进行数据交换
 
 
 ### 工作流程
 
 ![Alt text](http://www.stlswm.com/uploads/20181017101414.png "工作流程")
 
-1、外网服务unix套接字（或8080端口）接收外网网络请求
+1、内网服务器建立连接到外网服务器的8080端口并授权认证为内外网通讯连接
 
-2、发送通知给内网服务器（内网服务器通过端口9090保持与外网服务器的通讯，有自动重连机制）
+2、外网服务unix套接字（或8080端口）接收外网网络请求
 
-3、内网服务器收到外网服务器通知立即建立一个到外网服务器9091的新连接，同时建立与内部转发服务器的TCP连接
+3、当外网服务器8080端口收到客户端连接请求，立即发送通知给内网服务器，让内网服务器建立反向连接到外网服务器9090端口并授权为普通连接同时建立与内部转发服务器的TCP连接
 
-4、外网服务器从连接池取出内网连接（来源于9091端口）等待与第1步中的外网连接进行数据交换
+4、外网服务器从连接池取出内网连接（来源于9090端口的普通连接）等待与第2步中的外网连接进行数据交换
 
-5、外网服务器将第1步的外网连接和第4步的内网连接进行数据交换
+5、外网服务器将第2步的外网连接和第4步的内网连接进行数据交换
 
 6、内网服务器将外网服务器连接和内部转发连接进行数据交换
 
@@ -48,13 +46,13 @@ golang
 
 会golang的大朋友走这里，不会的小朋友可跳过这里
 
-1、 先下载配置解析器 
+1、 先下载配置解析器（安装到GOPATH的src目录）
 
-go get https://gitee.com/stlswm/ConfigAdapter.git
+git clone https://gitee.com/stlswm/ConfigAdapter.git
 
-2、 下载本项目
+2、 下载本项目（安装到GOPATH的src目录）
 
-go get https://gitee.com/stlswm/transponder.git
+git clone https://gitee.com/stlswm/transponder.git
 
 3、 o啦
 
@@ -67,47 +65,47 @@ go get https://gitee.com/stlswm/transponder.git
 
     配置文件：
     
-    注：开发环境新建 config.json 与 main.go处于同一目录即可，生产环境保证 config.json 与可执行文件在同一目录，修改配置文件后要重启服务
+    注：开发环境新建 outer.config.json 与 outer.go处于同一目录即可，生产环境保证 outer.config.json 与outer(outer.exe)可执行文件在同一目录，修改配置文件后要重启服务
 
         
         { 
-            "CommunicateServerAddress": "tcp://0.0.0.0:9090",//通讯服务监听地址，内网服务器会发起一个到该端口的连接用于与外网服务器互通有无
             "InnerServerAddress": "tcp://0.0.0.0:9091",//内网服务监听地址，内网服务器收到外网服务器通知后，会发起到该端口的连接用于处理客户端的请求
-            "OuterServerAddress": "tcp://0.0.0.0:8080"//外部服务监听地址
-            //"OuterServerAddress": "unix:///var/run/transponderouter"//linux unix套接字的网络模式（linux建议使用该模式）
+            "OuterServerAddress": "tcp://0.0.0.0:8080",//外部服务监听地址，用于对客户端提供服务
+            //"OuterServerAddress": "unix:///var/run/transponderouter",//linux unix套接字的网络模式（linux建议使用该模式）
+            "AuthKey":"12345"//连接授权码（内外网必须保持一致）
         }
 
 3. 内网服务端
 
     配置文件：
     
-    注：开发环境新建 config.json 与 main.go处于同一目录即可，生产环境保证 config.json 与可执行文件在同一目录，修改配置文件后要重启服务
+    注：开发环境新建 inner.config.json 与 inner.go处于同一目录即可，生产环境保证 inner.config.json 与inner(inner.exe)可执行文件在同一目录，修改配置文件后要重启服务
     
         
         {
-            "CommunicateAddress": "localhost:9090",//外网服务器通讯地址（这里填写外网服务器的CommunicateServerAddress）
-            "ServerAddress": "localhost:9091",//外网服务器对内网服务器的地址（这里填写外网服务器的InnerServerAddress）
-            "ProxyAddress": "localhost:80"//本地目标服务
+            "RegisterAddress": "localhost:9091",//外网服务器对内网服务器的地址（这里填写外网服务器的InnerServerAddress）
+            "ProxyAddress": "localhost:80",//本地目标服务
+            "AuthKey":"12345"//连接授权码（内外网必须保持一致）
         }
     
 4. 启动
 
    4.1 先启动外网服务 
    
-   保证配置文件config.json与可执行文件在同一目录
+   保证配置文件outer.config.json与可执行文件在同一目录
    
     
-    linux : ./bin/outer/outer (后台执行:nohup ./bin/outer/outer >> /tmp/transponder_outer.log 2>&1 &)
+    linux : ./bin//outer (后台执行:nohup ./bin/outer >> /tmp/transponder_outer.log 2>&1 &)
     
-    windows: 通过cmd命令行运行 /bin/outer/outer.exe
+    windows: 通过cmd命令行运行 /bin/outer.exe
         
    4.2 再启动内网服务
    
-   保证配置文件config.json与可执行文件在同一目录
+   保证配置文件inner.config.json与可执行文件在同一目录
    
-    linux : ./bin/inner/inner (后台执行:nohup ./bin/inner/inner >> /tmp/transponder_inner.log 2>&1 &)
+    linux : ./bin/inner (后台执行:nohup ./bin/inner >> /tmp/transponder_inner.log 2>&1 &)
     
-    windows: 通过cmd命令行运行 /bin/inner/inner.exe
+    windows: 通过cmd命令行运行 /bin/inner.exe
 		
 #### nginx配置
 

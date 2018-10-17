@@ -1,5 +1,0 @@
-{
-  "CommunicateServerAddress": "tcp://0.0.0.0:9090",
-  "InnerServerAddress": "tcp://0.0.0.0:9091",
-  "OuterServerAddress": "tcp://0.0.0.0:8080"
-}
