@@ -175,16 +175,16 @@ func (o *OuterHolder) newExchange() {
 		log.Println(err.Error())
 		return
 	}
-	outConn.SetReadDeadline(time.Now().Add(time.Second * 30))
-	outConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
+	outConn.SetReadDeadline(time.Now().Add(time.Second * 90))
+	outConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
 	proxyConn, err := net.Dial("tcp", o.ProxyAddress)
 	if err != nil {
 		outConn.Close()
 		log.Println(err.Error())
 		return
 	}
-	proxyConn.SetReadDeadline(time.Now().Add(time.Second * 30))
-	proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
+	proxyConn.SetReadDeadline(time.Now().Add(time.Second * 90))
+	proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
 	go func() {
 		io.Copy(outConn, proxyConn)
 		proxyConn.Close()
