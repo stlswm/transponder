@@ -24,6 +24,8 @@ golang
 
 ### 工作流程
 
+![Alt text](http://www.stlswm.com/uploads/20181017101414.png "optional title")
+
 1、外网服务unix套接字（或8080端口）接收外网网络请求
 
 2、发送通知给内网服务器（内网服务器通过端口9090保持与外网服务器的通讯，有自动重连机制）
