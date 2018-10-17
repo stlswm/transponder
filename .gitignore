@@ -1,6 +1,4 @@
 *.config.json
 /outer.exe
 /outer.exe~
-/outer
-/inner
 /.idea
