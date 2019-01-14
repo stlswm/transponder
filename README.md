@@ -71,7 +71,7 @@ git clone https://gitee.com/stlswm/transponder.git
         { 
             "InnerServerAddress": "tcp://0.0.0.0:9091",//内网服务监听地址，内网服务器收到外网服务器通知后，会发起到该端口的连接用于处理客户端的请求
             "OuterServerAddress": "tcp://0.0.0.0:8080",//外部服务监听地址，用于对客户端提供服务
-            //"OuterServerAddress": "unix:///var/run/transponderouter",//linux unix套接字的网络模式（linux建议使用该模式）
+            //"OuterServerAddress": "unix:///var/run/transponderouter.socket",//linux unix套接字的网络模式（linux建议使用该模式）
             "AuthKey":"12345"//连接授权码（内外网必须保持一致）
         }
 
