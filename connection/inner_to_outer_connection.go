@@ -55,7 +55,7 @@ func (itoc *InnerToOuterConnection) communicate(single int) error {
 // 读取服务器数据
 func (itoc *InnerToOuterConnection) Read() {
 	for {
-		if itoc.Status == StatusProxy {
+		if itoc.Status == StatusProxy || itoc.Status == StatusClose {
 			return
 		}
 		buf := make([]byte, event.PackageLength)
@@ -78,7 +78,7 @@ func (itoc *InnerToOuterConnection) Read() {
 			return
 		}
 		switch signal.T {
-		case event.StartWork:
+		case event.StartProxy:
 			itoc.Status = StatusProxy
 			itoc.Proxy()
 			return

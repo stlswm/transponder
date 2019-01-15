@@ -6,11 +6,11 @@ import (
 	"encoding/json"
 )
 
-const PackageLength = 32 //包长
+const PackageLength = 48 //包长
 
-const Ping = 0                //ping
-const Auth = 2                //授权
-const StartWork = 200         //开始转发工作
+const Ping = 0       //ping
+const Auth = 2       //授权
+const StartProxy = 6 //开始转发工作
 
 // 内网通讯信号每
 type Signal struct {

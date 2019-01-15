@@ -51,7 +51,7 @@ func (ic *InnerConnection) startProxy() {
 // 读取内网服务器上行数据
 func (ic *InnerConnection) Read() {
 	for {
-		if ic.Status == StatusProxy {
+		if ic.Status == StatusProxy || ic.Status == StatusClose {
 			return
 		}
 		buf := make([]byte, event.PackageLength)
@@ -84,7 +84,7 @@ func (ic *InnerConnection) Read() {
 			}
 			ic.Status = StatusOk
 			ic.StatusMonitor(ic.Id, ic.Status)
-		case event.StartWork:
+		case event.StartProxy:
 			ic.startProxy()
 			return
 		default:
@@ -100,7 +100,7 @@ func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 	ic.proxyConn = conn
 	ic.Status = StatusProxy
 	ic.StatusMonitor(ic.Id, ic.Status)
-	ic.Conn.Write(event.GenerateSignal(event.StartWork, ""))
+	ic.Conn.Write(event.GenerateSignal(event.StartProxy, ""))
 }
 
 // 关闭连接
