@@ -60,6 +60,7 @@ func (sfi *ServerForInner) StartServer() {
 		innerConn := &connection.InnerConnection{
 			Id:      id,
 			Created: time.Now().Unix(),
+			AuthKey: sfi.AuthKey,
 			Conn:    tcpConn,
 			StatusMonitor: func(id uint64, status int) {
 				switch status {
