@@ -14,6 +14,7 @@ import (
 	"strconv"
 	"time"
 	"io"
+	"strings"
 )
 
 const StatusInit = 0
@@ -77,7 +78,7 @@ func (ic *InnerConnection) Read() {
 		case event.Ping:
 			// do nothing
 		case event.Auth:
-			if signal.Ext != ic.AuthKey {
+			if strings.TrimRight(signal.Ext, " ") != ic.AuthKey {
 				log.Println("auth key " + ic.AuthKey + " != " + signal.Ext)
 				ic.Close()
 				return
