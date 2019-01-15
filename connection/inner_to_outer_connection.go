@@ -55,6 +55,9 @@ func (itoc *InnerToOuterConnection) communicate(single int) error {
 // 读取服务器数据
 func (itoc *InnerToOuterConnection) Read() {
 	for {
+		if itoc.Status == StatusProxy {
+			return
+		}
 		buf := make([]byte, event.PackageLength)
 		n, err := itoc.outServerConn.Read(buf)
 		if err != nil {

@@ -13,6 +13,7 @@ type ServerInner struct {
 	RegisterAddress string
 	AuthKey         string
 	connId          uint64
+	connNum         int64
 	ConnList        sync.Map //到外网服务的连接
 	ProxyAddress    string
 }
@@ -30,7 +31,7 @@ func (si *ServerInner) generateConnId() uint64 {
 	return si.generateConnId()
 }
 
-// 与外网服务器通讯
+// 连接维持
 func (si *ServerInner) batchPing() {
 	t := time.NewTicker(time.Second * 10)
 	for {
@@ -43,6 +44,7 @@ func (si *ServerInner) batchPing() {
 	}
 }
 
+// 批量创建新连接到外网服务器
 func (si *ServerInner) batchConnectToOuter(num int) {
 	for i := 0; i < num; i++ {
 		c := &connection.InnerToOuterConnection{
@@ -51,12 +53,19 @@ func (si *ServerInner) batchConnectToOuter(num int) {
 				switch status {
 				case connection.StatusClose:
 					si.ConnList.Delete(id)
+					si.connNum--
+					if si.connNum < 50 {
+						si.batchConnectToOuter(50)
+					}
 				}
 			},
 			OutServerAddress: si.RegisterAddress,
 			OutServerAuthKey: si.AuthKey,
 			ProxyAddress:     si.ProxyAddress,
 		}
+		c.Register()
+		go c.Read()
+		si.connNum++
 		si.ConnList.Store(c.Id, c)
 	}
 }

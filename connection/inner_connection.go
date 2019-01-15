@@ -51,6 +51,9 @@ func (ic *InnerConnection) startProxy() {
 // 读取内网服务器上行数据
 func (ic *InnerConnection) Read() {
 	for {
+		if ic.Status == StatusProxy {
+			return
+		}
 		buf := make([]byte, event.PackageLength)
 		n, err := ic.Conn.Read(buf)
 		if err != nil {
