@@ -13,11 +13,11 @@ import (
 
 // 内部服务对象
 type ServerForInner struct {
-	Address              string   //监听地址
-	AuthKey              string   //连接授权码
-	connId               uint64   //连接id
-	tempConnList         sync.Map //内网服务连接列表
-	InnerConnectionQueue chan *connection.InnerConnection
+	Address      string //监听地址
+	AuthKey      string //连接授权码
+	connId       uint64 //连接id
+	connLock     sync.Mutex
+	tempConnList sync.Map //内网服务连接列表
 }
 
 // 连接id生成
@@ -65,10 +65,7 @@ func (sfi *ServerForInner) StartServer() {
 			StatusMonitor: func(id uint64, status int) {
 				switch status {
 				case connection.StatusOk:
-					c, ok := sfi.tempConnList.Load(id)
-					if ok {
-						sfi.InnerConnectionQueue <- c.(*connection.InnerConnection)
-					}
+					log.Println("new connection register")
 				case connection.StatusClose:
 					//回收资源
 					sfi.tempConnList.Delete(id)
@@ -101,14 +98,25 @@ func (sfi *ServerForInner) authOverdueCheck() {
 
 // 转发
 func (sfi *ServerForInner) IOExchange(conn net.Conn) {
-	t := time.After(time.Second * 5)
-	select {
-	case innerConn := <-sfi.InnerConnectionQueue:
-		innerConn.ProxyRequest(conn)
-	case <-t:
-		log.Println("connect to inner server timeout")
+	var innerConn *connection.InnerConnection
+	sfi.connLock.Lock()
+	sfi.tempConnList.Range(func(key, value interface{}) bool {
+		tmpConn := value.(*connection.InnerConnection)
+		if tmpConn.Status == connection.StatusOk && tmpConn.Conn != nil {
+			sfi.tempConnList.Delete(key)
+			innerConn = tmpConn
+			return false
+		}
+		return true
+	})
+	sfi.connLock.Unlock()
+	if innerConn == nil {
+		//无可用连接
+		log.Println("no usable connection")
 		conn.Close()
+		return
 	}
+	innerConn.ProxyRequest(conn)
 }
 
 func main() {
@@ -121,9 +129,9 @@ func main() {
 	JsonConfig.Load("outer.config.json", c)
 	//启动内部服务
 	serverForInner := &ServerForInner{
-		Address:              c.InnerServerAddress,
-		AuthKey:              c.AuthKey,
-		InnerConnectionQueue: make(chan *connection.InnerConnection, 1024),
+		Address:  c.InnerServerAddress,
+		AuthKey:  c.AuthKey,
+		connLock: sync.Mutex{},
 	}
 	go serverForInner.StartServer()
 	//启动外部服务

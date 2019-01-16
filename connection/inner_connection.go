@@ -33,22 +33,6 @@ type InnerConnection struct {
 	StatusMonitor func(id uint64, status int)
 }
 
-// 开始转发
-func (ic *InnerConnection) startProxy() {
-	ic.Conn.SetReadDeadline(time.Now().Add(time.Second * 90))
-	ic.Conn.SetWriteDeadline(time.Now().Add(time.Second * 90))
-	ic.proxyConn.SetReadDeadline(time.Now().Add(time.Second * 90))
-	ic.proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
-	go func() {
-		io.Copy(ic.Conn, ic.proxyConn)
-		ic.proxyConn.Close()
-	}()
-	go func() {
-		io.Copy(ic.proxyConn, ic.Conn)
-		ic.Close()
-	}()
-}
-
 // 读取内网服务器上行数据
 func (ic *InnerConnection) Read() {
 	for {
@@ -114,6 +98,23 @@ func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 			ic.Close()
 		}
 	})
+}
+
+// 开始转发
+func (ic *InnerConnection) startProxy() {
+	log.Println("开始转发")
+	ic.Conn.SetReadDeadline(time.Now().Add(time.Second * 90))
+	ic.Conn.SetWriteDeadline(time.Now().Add(time.Second * 90))
+	ic.proxyConn.SetReadDeadline(time.Now().Add(time.Second * 90))
+	ic.proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
+	go func() {
+		io.Copy(ic.Conn, ic.proxyConn)
+		ic.proxyConn.Close()
+	}()
+	go func() {
+		io.Copy(ic.proxyConn, ic.Conn)
+		ic.Close()
+	}()
 }
 
 // 关闭连接
