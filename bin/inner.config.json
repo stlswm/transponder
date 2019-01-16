@@ -1,5 +1,0 @@
-{
-  "RegisterAddress": "tcp://localhost:9090",
-  "ProxyAddress": "tcp://localhost:80",
-  "AuthKey": "12345"
-}
