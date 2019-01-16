@@ -54,9 +54,9 @@ func (si *ServerInner) batchConnectToOuter(num int) {
 				switch status {
 				case connection.StatusClose:
 					si.ConnList.Delete(id)
-					si.connNum--
-					log.Println("内部转发连接关闭")
-					log.Println(si.connNum)
+					if si.connNum > 0 {
+						si.connNum--
+					}
 					if si.connNum < 10 {
 						si.batchConnectToOuter(10)
 					}
