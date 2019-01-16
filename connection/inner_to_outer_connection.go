@@ -43,6 +43,9 @@ func (itoc *InnerToOuterConnection) communicate(single int) error {
 	case event.Auth:
 		//授权
 		sb = event.GenerateSignal(event.Auth, itoc.OutServerAuthKey)
+	case event.StartProxy:
+		//准备转发
+		sb = event.GenerateSignal(event.StartProxy, "")
 	default:
 		return errors.New("不支持的信号类型")
 	}

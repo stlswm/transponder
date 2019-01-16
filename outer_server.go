@@ -106,7 +106,7 @@ func (sfi *ServerForInner) IOExchange(conn net.Conn) {
 	case innerConn := <-sfi.InnerConnectionQueue:
 		innerConn.ProxyRequest(conn)
 	case <-t:
-		log.Println("connect timeout")
+		log.Println("connect to inner server timeout")
 		conn.Close()
 	}
 }

@@ -6,7 +6,6 @@ import (
 	"time"
 	"sync"
 	"transponder/connection"
-	"log"
 )
 
 // 外网服务器关系维护
@@ -36,7 +35,6 @@ func (si *ServerInner) generateConnId() uint64 {
 func (si *ServerInner) batchPing() {
 	t := time.NewTicker(time.Second * 10)
 	for {
-		log.Println("ping")
 		<-t.C
 		si.ConnList.Range(func(key, value interface{}) bool {
 			innerConn := value.(*connection.InnerToOuterConnection)
