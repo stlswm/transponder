@@ -100,7 +100,6 @@ func (ic *InnerConnection) Read() {
 
 // 开始转发
 func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
-	log.Println("发送转发请求")
 	ic.proxyConn = conn
 	ic.StatusMonitor(ic.Id, ic.Status)
 	_, err := ic.Conn.Write(event.GenerateSignal(event.StartProxy, ""))
