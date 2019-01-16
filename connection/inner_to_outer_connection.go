@@ -130,6 +130,7 @@ func (itoc *InnerToOuterConnection) Ping() {
 
 // 开始数据转发
 func (itoc *InnerToOuterConnection) Proxy() {
+	log.Println("内部服务开始转发")
 	itoc.Status = StatusProxy
 	itoc.StatusMonitor(itoc.Id, itoc.Status)
 	//发送转发信号
