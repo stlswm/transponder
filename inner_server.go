@@ -6,6 +6,7 @@ import (
 	"time"
 	"sync"
 	"transponder/connection"
+	"log"
 )
 
 // 外网服务器关系维护
@@ -35,6 +36,7 @@ func (si *ServerInner) generateConnId() uint64 {
 func (si *ServerInner) batchPing() {
 	t := time.NewTicker(time.Second * 10)
 	for {
+		log.Println("ping")
 		<-t.C
 		si.ConnList.Range(func(key, value interface{}) bool {
 			innerConn := value.(*connection.InnerToOuterConnection)
@@ -52,10 +54,11 @@ func (si *ServerInner) batchConnectToOuter(num int) {
 			StatusMonitor: func(id uint64, status int) {
 				switch status {
 				case connection.StatusClose:
+					log.Println("closed")
 					si.ConnList.Delete(id)
 					si.connNum--
-					if si.connNum < 50 {
-						si.batchConnectToOuter(50)
+					if si.connNum < 10 {
+						si.batchConnectToOuter(10)
 					}
 				}
 			},
@@ -101,6 +104,6 @@ func main() {
 		AuthKey:         c.AuthKey,
 		ProxyAddress:    proxyAddress,
 	}
-	si.batchConnectToOuter(100)
+	si.batchConnectToOuter(10)
 	si.batchPing()
 }

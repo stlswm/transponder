@@ -70,6 +70,7 @@ func (sfi *ServerForInner) StartServer() {
 						sfi.InnerConnectionQueue <- c.(*connection.InnerConnection)
 					}
 				case connection.StatusClose:
+					//回收资源
 					sfi.tempConnList.Delete(id)
 				}
 			},
@@ -160,6 +161,6 @@ func main() {
 			go serverForInner.IOExchange(conn)
 		}
 	default:
-		panic("net type " + addrSlice[0] + " is not allow.")
+		panic("net type " + addrSlice[0] + " is not allow")
 	}
 }

@@ -55,6 +55,8 @@ func (itoc *InnerToOuterConnection) communicate(single int) error {
 // 读取服务器数据
 func (itoc *InnerToOuterConnection) Read() {
 	for {
+		log.Println("read")
+		log.Println(itoc.Status)
 		if itoc.Status == StatusProxy || itoc.Status == StatusClose {
 			return
 		}
@@ -79,6 +81,7 @@ func (itoc *InnerToOuterConnection) Read() {
 		}
 		switch signal.T {
 		case event.StartProxy:
+			log.Println("start proxy")
 			itoc.Status = StatusProxy
 			itoc.Proxy()
 			return
@@ -106,6 +109,7 @@ func (itoc *InnerToOuterConnection) Register() {
 		itoc.Close()
 		return
 	}
+	itoc.Status = StatusOk
 	itoc.StatusMonitor(itoc.Id, itoc.Status)
 }
 
@@ -135,7 +139,7 @@ func (itoc *InnerToOuterConnection) Proxy() {
 
 // 维持与服务器的连接
 func (itoc *InnerToOuterConnection) Ping() {
-	if itoc.Status == StatusProxy {
+	if itoc.Status == StatusInit || itoc.Status == StatusProxy || itoc.outServerConn == nil {
 		return
 	}
 	err := itoc.communicate(event.Ping)

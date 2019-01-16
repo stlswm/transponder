@@ -74,6 +74,7 @@ func (ic *InnerConnection) Read() {
 			ic.Close()
 			return
 		}
+		log.Println(signal.T)
 		switch signal.T {
 		case event.Ping:
 			// do nothing
@@ -86,6 +87,7 @@ func (ic *InnerConnection) Read() {
 			ic.Status = StatusOk
 			ic.StatusMonitor(ic.Id, ic.Status)
 		case event.StartProxy:
+			ic.Status = StatusProxy
 			ic.startProxy()
 			return
 		default:
@@ -101,7 +103,12 @@ func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 	ic.proxyConn = conn
 	ic.Status = StatusProxy
 	ic.StatusMonitor(ic.Id, ic.Status)
-	ic.Conn.Write(event.GenerateSignal(event.StartProxy, ""))
+	log.Println("发送转发请求")
+	_, err := ic.Conn.Write(event.GenerateSignal(event.StartProxy, ""))
+	if err != nil {
+		conn.Close()
+		log.Println("send request fail:" + err.Error())
+	}
 }
 
 // 关闭连接
