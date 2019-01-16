@@ -92,7 +92,7 @@ func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 		return
 	}
 	time.AfterFunc(time.Second*5, func() {
-		if ic.Status != StatusProxy {
+		if ic.Status != StatusProxy && ic.Status != StatusClose {
 			log.Println("wait for inner service timeout")
 			ic.Close()
 		}
