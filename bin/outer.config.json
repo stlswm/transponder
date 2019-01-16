@@ -1,5 +1,0 @@
-{
-  "InnerServerAddress": "tcp://0.0.0.0:8080",
-  "OuterServerAddress": "unix:///var/run/transponderouter.socket",
-  "AuthKey": "12345"
-}
