@@ -152,11 +152,17 @@ func (itoc *InnerToOuterConnection) Proxy() {
 	proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
 	go func() {
 		io.Copy(itoc.outServerConn, proxyConn)
-		itoc.outServerConn.Close()
+		itoc.Close()
+		if proxyConn != nil {
+			proxyConn.Close()
+		}
 	}()
 	go func() {
 		io.Copy(proxyConn, itoc.outServerConn)
-		proxyConn.Close()
+		itoc.Close()
+		if proxyConn != nil {
+			proxyConn.Close()
+		}
 	}()
 }
 
