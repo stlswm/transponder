@@ -101,7 +101,7 @@ func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 
 // 开始转发
 func (ic *InnerConnection) startProxy() {
-	log.Println("外部服务开始转发")
+	//log.Println("外部服务开始转发")
 	ic.Conn.SetReadDeadline(time.Now().Add(time.Second * 30))
 	ic.Conn.SetWriteDeadline(time.Now().Add(time.Second * 30))
 	ic.proxyConn.SetReadDeadline(time.Now().Add(time.Second * 30))
