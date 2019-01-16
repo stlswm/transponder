@@ -47,7 +47,7 @@ func (si *ServerInner) batchPing() {
 
 // 批量创建新连接到外网服务器
 func (si *ServerInner) batchConnectToOuter(num int) {
-	for i := 1; i < num; i++ {
+	for i := 1; i <= num; i++ {
 		c := &connection.InnerToOuterConnection{
 			Id: si.generateConnId(),
 			StatusMonitor: func(id uint64, status int) {
