@@ -54,7 +54,6 @@ func (si *ServerInner) batchConnectToOuter(num int) {
 			StatusMonitor: func(id uint64, status int) {
 				switch status {
 				case connection.StatusClose:
-					log.Println("closed")
 					si.ConnList.Delete(id)
 					si.connNum--
 					if si.connNum < 10 {
@@ -62,9 +61,10 @@ func (si *ServerInner) batchConnectToOuter(num int) {
 					}
 				}
 			},
-			OutServerAddress: si.RegisterAddress,
-			OutServerAuthKey: si.AuthKey,
-			ProxyAddress:     si.ProxyAddress,
+			OutServerAddress:       si.RegisterAddress,
+			OutServerAuthKey:       si.AuthKey,
+			OutServerConnWriteLock: sync.Mutex{},
+			ProxyAddress:           si.ProxyAddress,
 		}
 		c.Register()
 		go c.Read()

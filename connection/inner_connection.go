@@ -85,9 +85,10 @@ func (ic *InnerConnection) Read() {
 				return
 			}
 			ic.Status = StatusOk
-			ic.StatusMonitor(ic.Id, ic.Status)
+			ic.StatusMonitor(ic.Id, StatusOk)
 		case event.StartProxy:
 			ic.Status = StatusProxy
+			ic.StatusMonitor(ic.Id, StatusProxy)
 			ic.startProxy()
 			return
 		default:
@@ -101,22 +102,31 @@ func (ic *InnerConnection) Read() {
 // 开始转发
 func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 	ic.proxyConn = conn
-	ic.Status = StatusProxy
 	ic.StatusMonitor(ic.Id, ic.Status)
-	log.Println("发送转发请求")
 	_, err := ic.Conn.Write(event.GenerateSignal(event.StartProxy, ""))
 	if err != nil {
-		conn.Close()
 		log.Println("send request fail:" + err.Error())
+		ic.Close()
+		return
 	}
+	time.AfterFunc(time.Second*5, func() {
+		if ic.Status != StatusProxy {
+			log.Println("wait for inner service timeout")
+			ic.Close()
+		}
+	})
 }
 
 // 关闭连接
 func (ic *InnerConnection) Close() {
 	ic.Status = StatusClose
+	ic.StatusMonitor(ic.Id, StatusClose)
 	if ic.Conn != nil {
 		ic.Conn.Close()
 		ic.Conn = nil
 	}
-	ic.StatusMonitor(ic.Id, ic.Status)
+	if ic.proxyConn != nil {
+		ic.proxyConn.Close()
+		ic.proxyConn = nil
+	}
 }

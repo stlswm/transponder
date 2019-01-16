@@ -15,17 +15,19 @@ import (
 	"time"
 	"io"
 	"strconv"
+	"sync"
 )
 
 // 内网到外网服务的连接
 type InnerToOuterConnection struct {
-	Id               uint64
-	Status           int
-	StatusMonitor    func(id uint64, status int)
-	OutServerAddress string
-	OutServerAuthKey string
-	outServerConn    net.Conn
-	ProxyAddress     string
+	Id                     uint64
+	Status                 int
+	StatusMonitor          func(id uint64, status int)
+	OutServerAddress       string
+	OutServerAuthKey       string
+	outServerConn          net.Conn
+	OutServerConnWriteLock sync.Mutex
+	ProxyAddress           string
 }
 
 // 与外网服务器通讯
@@ -44,7 +46,9 @@ func (itoc *InnerToOuterConnection) communicate(single int) error {
 	default:
 		return errors.New("不支持的信号类型")
 	}
+	itoc.OutServerConnWriteLock.Lock()
 	_, err := itoc.outServerConn.Write(sb)
+	itoc.OutServerConnWriteLock.Unlock()
 	if err == nil {
 		return nil
 	}
@@ -55,8 +59,6 @@ func (itoc *InnerToOuterConnection) communicate(single int) error {
 // 读取服务器数据
 func (itoc *InnerToOuterConnection) Read() {
 	for {
-		log.Println("read")
-		log.Println(itoc.Status)
 		if itoc.Status == StatusProxy || itoc.Status == StatusClose {
 			return
 		}
@@ -81,7 +83,6 @@ func (itoc *InnerToOuterConnection) Read() {
 		}
 		switch signal.T {
 		case event.StartProxy:
-			log.Println("start proxy")
 			itoc.Status = StatusProxy
 			itoc.Proxy()
 			return
@@ -113,10 +114,27 @@ func (itoc *InnerToOuterConnection) Register() {
 	itoc.StatusMonitor(itoc.Id, itoc.Status)
 }
 
+// 维持与服务器的连接
+func (itoc *InnerToOuterConnection) Ping() {
+	if itoc.Status == StatusInit || itoc.Status == StatusProxy || itoc.outServerConn == nil {
+		return
+	}
+	err := itoc.communicate(event.Ping)
+	if err != nil {
+		//注册失败
+		log.Println("ping fail:" + err.Error())
+		itoc.Close()
+		return
+	}
+}
+
 // 开始数据转发
 func (itoc *InnerToOuterConnection) Proxy() {
 	itoc.Status = StatusProxy
 	itoc.StatusMonitor(itoc.Id, itoc.Status)
+	//发送转发信号
+
+	//开始转发
 	itoc.outServerConn.SetReadDeadline(time.Now().Add(time.Second * 90))
 	itoc.outServerConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
 	proxyConn, err := net.Dial("tcp", itoc.ProxyAddress)
@@ -135,20 +153,6 @@ func (itoc *InnerToOuterConnection) Proxy() {
 		io.Copy(proxyConn, itoc.outServerConn)
 		itoc.Close()
 	}()
-}
-
-// 维持与服务器的连接
-func (itoc *InnerToOuterConnection) Ping() {
-	if itoc.Status == StatusInit || itoc.Status == StatusProxy || itoc.outServerConn == nil {
-		return
-	}
-	err := itoc.communicate(event.Ping)
-	if err != nil {
-		//注册失败
-		log.Println("ping fail:" + err.Error())
-		itoc.Close()
-		return
-	}
 }
 
 // 关闭连接

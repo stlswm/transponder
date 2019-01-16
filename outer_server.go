@@ -36,7 +36,7 @@ func (sfi *ServerForInner) generateConnId() uint64 {
 
 // 启动服务
 func (sfi *ServerForInner) StartServer() {
-	log.Println("start server for inner service at address:" + sfi.Address)
+	log.Println("start server for inner service at address " + sfi.Address)
 	addrSlice := strings.Split(sfi.Address, "://")
 	if len(addrSlice) < 2 {
 		panic(sfi.Address + " format error.")
@@ -101,8 +101,14 @@ func (sfi *ServerForInner) authOverdueCheck() {
 
 // 转发
 func (sfi *ServerForInner) IOExchange(conn net.Conn) {
-	innerConn := <-sfi.InnerConnectionQueue
-	innerConn.ProxyRequest(conn)
+	t := time.After(time.Second * 5)
+	select {
+	case innerConn := <-sfi.InnerConnectionQueue:
+		innerConn.ProxyRequest(conn)
+	case <-t:
+		log.Println("connect timeout")
+		conn.Close()
+	}
 }
 
 func main() {
@@ -121,7 +127,7 @@ func main() {
 	}
 	go serverForInner.StartServer()
 	//启动外部服务
-	log.Println("start out service server at:" + c.OuterServerAddress)
+	log.Println("start out service server at " + c.OuterServerAddress)
 	addrSlice := strings.Split(c.OuterServerAddress, "://")
 	if len(addrSlice) < 2 {
 		panic(c.OuterServerAddress + " format error")
