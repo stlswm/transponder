@@ -85,7 +85,6 @@ func (ic *InnerConnection) Read() {
 // 开始转发
 func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 	ic.proxyConn = conn
-	ic.StatusMonitor(ic.Id, ic.Status)
 	_, err := ic.Conn.Write(event.GenerateSignal(event.StartProxy, ""))
 	if err != nil {
 		log.Println("send request fail:" + err.Error())
@@ -103,16 +102,16 @@ func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 // 开始转发
 func (ic *InnerConnection) startProxy() {
 	log.Println("外部服务开始转发")
-	ic.Conn.SetReadDeadline(time.Now().Add(time.Second * 90))
-	ic.Conn.SetWriteDeadline(time.Now().Add(time.Second * 90))
-	ic.proxyConn.SetReadDeadline(time.Now().Add(time.Second * 90))
-	ic.proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
+	ic.Conn.SetReadDeadline(time.Now().Add(time.Second * 30))
+	ic.Conn.SetWriteDeadline(time.Now().Add(time.Second * 30))
+	ic.proxyConn.SetReadDeadline(time.Now().Add(time.Second * 30))
+	ic.proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
 	go func() {
-		io.Copy(ic.Conn, ic.proxyConn)
+		io.Copy(ic.proxyConn, ic.Conn)
 		ic.proxyConn.Close()
 	}()
 	go func() {
-		io.Copy(ic.proxyConn, ic.Conn)
+		io.Copy(ic.Conn, ic.proxyConn)
 		ic.Close()
 	}()
 }
