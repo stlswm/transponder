@@ -107,7 +107,6 @@ func (itoc *InnerToOuterConnection) Register() {
 	if err != nil {
 		//注册失败
 		log.Println("register fail:" + err.Error())
-		itoc.Close()
 		return
 	}
 	itoc.Status = StatusOk
@@ -121,9 +120,7 @@ func (itoc *InnerToOuterConnection) Ping() {
 	}
 	err := itoc.communicate(event.Ping)
 	if err != nil {
-		//注册失败
 		log.Println("ping fail:" + err.Error())
-		itoc.Close()
 		return
 	}
 }
@@ -133,7 +130,11 @@ func (itoc *InnerToOuterConnection) Proxy() {
 	itoc.Status = StatusProxy
 	itoc.StatusMonitor(itoc.Id, itoc.Status)
 	//发送转发信号
-
+	err := itoc.communicate(event.StartProxy)
+	if err != nil {
+		log.Println("send proxy signal fail:" + err.Error())
+		return
+	}
 	//开始转发
 	itoc.outServerConn.SetReadDeadline(time.Now().Add(time.Second * 90))
 	itoc.outServerConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
