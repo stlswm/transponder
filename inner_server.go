@@ -6,6 +6,7 @@ import (
 	"time"
 	"sync"
 	"transponder/connection"
+	"log"
 )
 
 // 外网服务器关系维护
@@ -103,5 +104,6 @@ func main() {
 		ProxyAddress:    proxyAddress,
 	}
 	si.batchConnectToOuter(10)
+	log.Println("start success")
 	si.batchPing()
 }
