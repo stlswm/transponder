@@ -1,4 +1,4 @@
-# golang内网穿透工具V1.0（支持windows与linux）
+# golang内网穿透工具V2.0（支持windows与linux）
 
 #### 项目介绍
 transponder内网穿透工具分为两端：外网服务器端与内网服务器端。
