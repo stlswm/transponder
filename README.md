@@ -3,7 +3,7 @@
 #### 项目介绍
 transponder内网穿透工具分为两端：外网服务器端与内网服务器端。
 
-通过该程序内网服务器可以在没有公网IP的情况下借助外网服务器对广域网提供服务。
+通过该程序内网服务器可以在没有公网IP的情况下借助外网服务器对广域网提供服务（适用于有回调接口的第方应用的开发调试，如：微信公众号、支付宝接口调试）。
 
 该工具支持windows与linux等不同的操作系统。
 
@@ -21,26 +21,23 @@ golang
 
 2、外网服务器使用使用unix套接字提供外网服务（或监听端口8080，防火墙要添加入站规则），用于接收nginx转发过来的请求（也可以直接监听端口）
 
-3、通过客户端连接到外网服务8080的连接、内网服务器到外网服务器9090的连接通路进行数据交换
+3、连接通路：外网nginx->外网unix套接字->外网9090->内网连接->内部80。这样就借助外网服务器的9090端口成功的连接了外网80到内网80的连接通路。
 
+内网服务器会每秒检测当前连接到外网服务器的待命连接数，少于10个后会再主动发送一批连接并通过ping包维护与外网服务器的连接。
 
 ### 工作流程
 
-![Alt text](http://www.stlswm.com/uploads/20181017101414.png "工作流程")
+![工作流程](https://www.stlswm.com/uploads/20190119115122.jpg)
 
-1、内网服务器建立连接到外网服务器的8080端口并授权认证为内外网通讯连接
+1、内网服务器批量建立到外网服务器的9090端口的连接并授权
 
-2、外网服务unix套接字（或8080端口）接收外网网络请求
+2、外网服务unix套接字（或8080端口）接收外网网络请求并从内网到9090的连接池中取出连接，发送转发指令
 
-3、当外网服务器8080端口收到客户端连接请求，立即发送通知给内网服务器，让内网服务器建立反向连接到外网服务器9090端口并授权为普通连接同时建立与内部转发服务器的TCP连接
+3、内网服务器收到转发指令并回复转发待命指令
 
-4、外网服务器从连接池取出内网连接（来源于9090端口的普通连接）等待与第2步中的外网连接进行数据交换
+4、外网服务器收到转发待命请求开发送数据，开启数据转发
 
-5、外网服务器将第2步的外网连接和第4步的内网连接进行数据交换
-
-6、内网服务器将外网服务器连接和内部转发连接进行数据交换
-
-7、转发完成，内网服务器释放资源关闭连接，外网服务器释放资源关闭连接
+5、转发完成，内网服务器释放资源关闭连接，外网服务器释放资源关闭连接
 
 #### 安装教程
 
@@ -65,27 +62,27 @@ git clone https://gitee.com/stlswm/transponder.git
 
     配置文件：
     
-    注：开发环境新建 outer.config.json 与 outer.go处于同一目录即可，生产环境保证 outer.config.json 与outer(outer.exe)可执行文件在同一目录，修改配置文件后要重启服务
+    注：开发环境新建 outer.config.json 与 与outer_server.go处于同一目录即可，生产环境保证 outer.config.json 与outer_server(与outer_server.exe)可执行文件在同一目录，修改配置文件后要重启服务
 
         
         { 
-            "InnerServerAddress": "tcp://0.0.0.0:9091",//内网服务监听地址，内网服务器收到外网服务器通知后，会发起到该端口的连接用于处理客户端的请求
+            "InnerServerAddress": "tcp://0.0.0.0:9090",//内网服务监听地址，内网服务器收到外网服务器通知后，会发起到该端口的连接用于处理客户端的请求
             "OuterServerAddress": "tcp://0.0.0.0:8080",//外部服务监听地址，用于对客户端提供服务
-            //"OuterServerAddress": "unix:///var/run/transponderouter.socket",//linux unix套接字的网络模式（linux建议使用该模式）
-            "AuthKey":"12345"//连接授权码（内外网必须保持一致）
+            "OuterServerAddress": "unix:///var/run/transponderouter.sock",//linux unix套接字的网络模式（linux建议使用该模式）
+            "AuthKey":"123456"//连接授权码（内外网必须保持一致）
         }
 
 3. 内网服务端
 
     配置文件：
     
-    注：开发环境新建 inner.config.json 与 inner.go处于同一目录即可，生产环境保证 inner.config.json 与inner(inner.exe)可执行文件在同一目录，修改配置文件后要重启服务
+    注：开发环境新建 inner.config.json 与 inner_server.go处于同一目录即可，生产环境保证 inner.config.json 与inner_server(与inner_server.exe)可执行文件在同一目录，修改配置文件后要重启服务
     
         
         {
-            "RegisterAddress": "localhost:9091",//外网服务器对内网服务器的地址（这里填写外网服务器的InnerServerAddress）
-            "ProxyAddress": "localhost:80",//本地目标服务
-            "AuthKey":"12345"//连接授权码（内外网必须保持一致）
+            "RegisterAddress": "tcp://外网服务器ip:9091",//外网服务器对内网服务器的地址（这里填写外网服务器的InnerServerAddress）
+            "ProxyAddress": "tcp://127.0.0.1:80",//本地目标服务
+            "AuthKey":"123459"//连接授权码（内外网必须保持一致）
         }
     
 4. 启动
@@ -95,17 +92,17 @@ git clone https://gitee.com/stlswm/transponder.git
    保证配置文件outer.config.json与可执行文件在同一目录
    
     
-    linux : ./bin//outer (后台执行:nohup ./bin/outer >> /tmp/transponder_outer.log 2>&1 &)
+    linux : ./outer_server (后台执行:nohup ./outer_server >> /tmp/transponder_outer.log 2>&1 &)
     
-    windows: 通过cmd命令行运行 /bin/outer.exe
+    windows: 通过cmd命令行运行 ./outer_server.exe
         
    4.2 再启动内网服务
    
    保证配置文件inner.config.json与可执行文件在同一目录
    
-    linux : ./bin/inner (后台执行:nohup ./bin/inner >> /tmp/transponder_inner.log 2>&1 &)
+    linux : ./inner_server (后台执行:nohup ./inner_server >> /tmp/transponder_inner.log 2>&1 &)
     
-    windows: 通过cmd命令行运行 /bin/inner.exe
+    windows: 通过cmd命令行运行 ./inner_server.exe
 		
 #### nginx配置
 
@@ -126,7 +123,7 @@ windows只能使用端口转发。
 	 
 		#send request to transponderouter.socket
 		location / {
-			proxy_pass http://unix:/var/run/transponderouter.socket:/;
+			proxy_pass http://unix:/var/run/transponderouter.sock:/;
 			
 			#proxy settings
 			proxy_redirect     off;
