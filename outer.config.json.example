@@ -1,6 +1,5 @@
 {
-     "InnerServerAddress": "tcp://0.0.0.0:9090",
-     "OuterServerAddress": "tcp://0.0.0.0:8080",
-     "OuterServerAddress": "unix:///var/run/transponderouter.sock",
-     "AuthKey":"123456"
+  "InnerServerAddress": "tcp://0.0.0.0:9090",
+  "OuterServerAddress": "unix:///var/run/transponderouter.sock",
+  "AuthKey": "123456"
 }
