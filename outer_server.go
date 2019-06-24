@@ -2,13 +2,13 @@ package main
 
 import (
 	"ConfigAdapter/JsonConfig"
-	"sync"
-	"net"
 	"log"
+	"net"
+	"os"
 	"strings"
+	"sync"
 	"time"
 	"transponder/connection"
-	"os"
 )
 
 // 内部服务对象
@@ -126,7 +126,10 @@ func main() {
 		AuthKey            string
 	}
 	c := &OutConfig{}
-	JsonConfig.Load("outer.config.json", c)
+	err := JsonConfig.Load("outer.config.json", c)
+	if err != nil {
+		panic("can not parse config file:outer.config.json")
+	}
 	//启动内部服务
 	serverForInner := &ServerForInner{
 		Address:  c.InnerServerAddress,

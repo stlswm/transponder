@@ -7,14 +7,14 @@
 package connection
 
 import (
-	"net"
-	"log"
-	"transponder/event"
 	"encoding/json"
-	"strconv"
-	"time"
 	"io"
+	"log"
+	"net"
+	"strconv"
 	"strings"
+	"time"
+	"transponder/event"
 )
 
 const StatusInit = 0

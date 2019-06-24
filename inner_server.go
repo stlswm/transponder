@@ -2,11 +2,11 @@ package main
 
 import (
 	"ConfigAdapter/JsonConfig"
-	"strings"
-	"time"
-	"sync"
-	"transponder/connection"
 	"log"
+	"strings"
+	"sync"
+	"time"
+	"transponder/connection"
 )
 
 // 外网服务器关系维护
@@ -81,7 +81,10 @@ func main() {
 		AuthKey         string
 	}
 	c := &InnerConfig{}
-	JsonConfig.Load("inner.config.json", c)
+	err := JsonConfig.Load("inner.config.json", c)
+	if err != nil {
+		panic("can not parse config file:inner.config.json")
+	}
 	//注册地址
 	addrSlice := strings.Split(c.RegisterAddress, "://")
 	if len(addrSlice) < 2 {
