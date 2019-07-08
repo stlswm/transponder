@@ -113,7 +113,9 @@ func (ic *InnerConnection) startProxy() {
 				log.Println(err.Error())
 			}
 		}
-		ic.proxyConn.Close()
+		if ic.proxyConn != nil {
+			ic.proxyConn.Close()
+		}
 	}()
 	go func() {
 		if ic.Conn != nil && ic.proxyConn != nil {
@@ -122,7 +124,9 @@ func (ic *InnerConnection) startProxy() {
 				log.Println(err.Error())
 			}
 		}
-		ic.Close()
+		if ic != nil {
+			ic.Close()
+		}
 	}()
 }
 
