@@ -13,11 +13,11 @@ import (
 
 // 内部服务对象
 type ServerForInner struct {
-	Address      string //监听地址
-	AuthKey      string //连接授权码
-	connId       uint64 //连接id
+	Address      string // 监听地址
+	AuthKey      string // 连接授权码
+	connId       uint64 // 连接id
 	connLock     sync.Mutex
-	tempConnList sync.Map //内网服务连接列表
+	tempConnList sync.Map // 内网服务连接列表
 }
 
 // 连接id生成
@@ -67,7 +67,7 @@ func (sfi *ServerForInner) StartServer() {
 				case connection.StatusOk:
 					log.Println("new connection register")
 				case connection.StatusClose:
-					//回收资源
+					// 回收资源
 					sfi.tempConnList.Delete(id)
 				}
 			},
@@ -86,7 +86,7 @@ func (sfi *ServerForInner) authOverdueCheck() {
 		sfi.tempConnList.Range(func(key, value interface{}) bool {
 			innerConn := value.(*connection.InnerConnection)
 			if timeNow-innerConn.Created > 10 && innerConn.Status == connection.StatusInit {
-				//超时没有认证的连接关闭并释放资源
+				// 超时没有认证的连接关闭并释放资源
 				log.Println(innerConn.Conn.RemoteAddr().String() + " auth timeout closed by server")
 				innerConn.Close()
 				sfi.tempConnList.Delete(key)
@@ -111,9 +111,9 @@ func (sfi *ServerForInner) IOExchange(conn net.Conn) {
 	})
 	sfi.connLock.Unlock()
 	if innerConn == nil {
-		//无可用连接
+		// 无可用连接
 		log.Println("no usable connection")
-		conn.Close()
+		_ = conn.Close()
 		return
 	}
 	innerConn.ProxyRequest(conn)
@@ -130,14 +130,14 @@ func main() {
 	if err != nil {
 		panic("can not parse config file:outer.config.json")
 	}
-	//启动内部服务
+	// 启动内部服务
 	serverForInner := &ServerForInner{
 		Address:  c.InnerServerAddress,
 		AuthKey:  c.AuthKey,
 		connLock: sync.Mutex{},
 	}
 	go serverForInner.StartServer()
-	//启动外部服务
+	// 启动外部服务
 	log.Println("start out service server at " + c.OuterServerAddress)
 	addrSlice := strings.Split(c.OuterServerAddress, "://")
 	if len(addrSlice) < 2 {
@@ -161,7 +161,7 @@ func main() {
 	case "unix":
 		_, err := os.Stat(addrSlice[1])
 		if err == nil {
-			os.Remove(addrSlice[1])
+			_ = os.Remove(addrSlice[1])
 		}
 		unixAddr, err := net.ResolveUnixAddr("unix", addrSlice[1])
 		if err != nil {
@@ -171,7 +171,7 @@ func main() {
 		if err != nil {
 			panic(err)
 		}
-		os.Chmod(addrSlice[1], 0777)
+		_ = os.Chmod(addrSlice[1], 0777)
 		defer listener.Close()
 		for {
 			conn, _ := listener.Accept()

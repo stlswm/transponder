@@ -24,12 +24,12 @@ const StatusClose = 4
 
 // 内部连接对象
 type InnerConnection struct {
-	Id            uint64   //连接id
-	Status        int      //连接状态
-	AuthKey       string   //授权码
-	Created       int64    //创建时间
-	Conn          net.Conn //内网服务连接对象
-	proxyConn     net.Conn //外网连接
+	Id            uint64   // 连接id
+	Status        int      // 连接状态
+	AuthKey       string   // 授权码
+	Created       int64    // 创建时间
+	Conn          net.Conn // 内网服务连接对象
+	proxyConn     net.Conn // 外网连接
 	StatusMonitor func(id uint64, status int)
 }
 
@@ -101,11 +101,11 @@ func (ic *InnerConnection) ProxyRequest(conn net.Conn) {
 
 // 开始转发
 func (ic *InnerConnection) startProxy() {
-	//log.Println("外部服务开始转发")
-	ic.Conn.SetReadDeadline(time.Now().Add(time.Second * 30))
-	ic.Conn.SetWriteDeadline(time.Now().Add(time.Second * 30))
-	ic.proxyConn.SetReadDeadline(time.Now().Add(time.Second * 30))
-	ic.proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
+	// log.Println("外部服务开始转发")
+	_ = ic.Conn.SetReadDeadline(time.Now().Add(time.Second * 30))
+	_ = ic.Conn.SetWriteDeadline(time.Now().Add(time.Second * 30))
+	_ = ic.proxyConn.SetReadDeadline(time.Now().Add(time.Second * 30))
+	_ = ic.proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
 	go func() {
 		if ic.proxyConn != nil && ic.Conn != nil {
 			_, err := io.Copy(ic.proxyConn, ic.Conn)
@@ -114,7 +114,7 @@ func (ic *InnerConnection) startProxy() {
 			}
 		}
 		if ic.proxyConn != nil {
-			ic.proxyConn.Close()
+			_ = ic.proxyConn.Close()
 		}
 	}()
 	go func() {
@@ -135,11 +135,11 @@ func (ic *InnerConnection) Close() {
 	ic.Status = StatusClose
 	ic.StatusMonitor(ic.Id, StatusClose)
 	if ic.Conn != nil {
-		ic.Conn.Close()
+		_ = ic.Conn.Close()
 		ic.Conn = nil
 	}
 	if ic.proxyConn != nil {
-		ic.proxyConn.Close()
+		_ = ic.proxyConn.Close()
 		ic.proxyConn = nil
 	}
 }
