@@ -118,7 +118,7 @@ windows只能使用端口转发。
 		listen 80;
 		server_name  www.abc.com;
 	 
-		access_log  /var/log/www.abc.com.access.log  main;
+		access_log  /var/log/www.abc.com.access.log;
 		error_log  /var/log/www.abc.com.error.log;
 		#root   html;
 		#index  index.html index.htm index.php;
