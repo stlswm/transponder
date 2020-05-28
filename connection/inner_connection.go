@@ -108,10 +108,7 @@ func (ic *InnerConnection) startProxy() {
 	_ = ic.proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 30))
 	go func() {
 		if ic.proxyConn != nil && ic.Conn != nil {
-			_, err := io.Copy(ic.proxyConn, ic.Conn)
-			if err != nil {
-				log.Println(err.Error())
-			}
+			_, _ = io.Copy(ic.proxyConn, ic.Conn)
 		}
 		if ic.proxyConn != nil {
 			_ = ic.proxyConn.Close()
@@ -119,10 +116,7 @@ func (ic *InnerConnection) startProxy() {
 	}()
 	go func() {
 		if ic.Conn != nil && ic.proxyConn != nil {
-			_, err := io.Copy(ic.Conn, ic.proxyConn)
-			if err != nil {
-				log.Println(err.Error())
-			}
+			_, _ = io.Copy(ic.Conn, ic.proxyConn)
 		}
 		if ic != nil {
 			ic.Close()
