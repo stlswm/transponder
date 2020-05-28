@@ -7,15 +7,15 @@
 package connection
 
 import (
-	"errors"
-	"transponder/event"
 	"encoding/json"
+	"errors"
+	"io"
 	"log"
 	"net"
-	"time"
-	"io"
 	"strconv"
 	"sync"
+	"time"
+	"transponder/event"
 )
 
 // 内网到外网服务的连接
@@ -101,7 +101,7 @@ func (itoc *InnerToOuterConnection) Read() {
 func (itoc *InnerToOuterConnection) Register() {
 	sc, err := net.Dial("tcp", itoc.OutServerAddress)
 	if err != nil {
-		log.Println("connect to error:" + err.Error())
+		log.Println("connect to server error:" + err.Error())
 		itoc.Close()
 		return
 	}
@@ -110,6 +110,7 @@ func (itoc *InnerToOuterConnection) Register() {
 	if err != nil {
 		//注册失败
 		log.Println("register fail:" + err.Error())
+		itoc.Close()
 		return
 	}
 	itoc.Status = StatusOk
@@ -140,28 +141,28 @@ func (itoc *InnerToOuterConnection) Proxy() {
 		return
 	}
 	//开始转发
-	itoc.outServerConn.SetReadDeadline(time.Now().Add(time.Second * 90))
-	itoc.outServerConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
+	_ = itoc.outServerConn.SetReadDeadline(time.Now().Add(time.Second * 90))
+	_ = itoc.outServerConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
 	proxyConn, err := net.Dial("tcp", itoc.ProxyAddress)
 	if err != nil {
 		itoc.Close()
 		log.Println("connect to proxy server error:" + err.Error())
 		return
 	}
-	proxyConn.SetReadDeadline(time.Now().Add(time.Second * 90))
-	proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
+	_ = proxyConn.SetReadDeadline(time.Now().Add(time.Second * 90))
+	_ = proxyConn.SetWriteDeadline(time.Now().Add(time.Second * 90))
 	go func() {
-		io.Copy(itoc.outServerConn, proxyConn)
+		_, _ = io.Copy(itoc.outServerConn, proxyConn)
 		itoc.Close()
 		if proxyConn != nil {
-			proxyConn.Close()
+			_ = proxyConn.Close()
 		}
 	}()
 	go func() {
-		io.Copy(proxyConn, itoc.outServerConn)
+		_, _ = io.Copy(proxyConn, itoc.outServerConn)
 		itoc.Close()
 		if proxyConn != nil {
-			proxyConn.Close()
+			_ = proxyConn.Close()
 		}
 	}()
 }
@@ -170,7 +171,7 @@ func (itoc *InnerToOuterConnection) Proxy() {
 func (itoc *InnerToOuterConnection) Close() {
 	itoc.Status = StatusClose
 	if itoc.outServerConn != nil {
-		itoc.outServerConn.Close()
+		_ = itoc.outServerConn.Close()
 		itoc.outServerConn = nil
 	}
 	itoc.StatusMonitor(itoc.Id, itoc.Status)
