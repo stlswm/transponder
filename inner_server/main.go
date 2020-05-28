@@ -112,6 +112,9 @@ func main() {
 	if err != nil {
 		panic("can not parse config file:inner.config.json")
 	}
+	if c.MaxFreeConn <= 0 {
+		c.MaxFreeConn = 10
+	}
 	//注册地址
 	addrSlice := strings.Split(c.RegisterAddress, "://")
 	if len(addrSlice) < 2 {
