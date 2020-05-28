@@ -1,5 +1,6 @@
 {
   "RegisterAddress": "tcp://you server:9090",
   "ProxyAddress": "tcp://127.0.0.1:80",
-  "AuthKey": "123456"
+  "AuthKey": "123456",
+  "MaxFreeConn": 50
 }

@@ -105,6 +105,7 @@ func main() {
 		RegisterAddress string
 		ProxyAddress    string
 		AuthKey         string
+		MaxFreeConn     int
 	}
 	c := &InnerConfig{}
 	err := JsonConfig.Load("inner.config.json", c)
@@ -133,7 +134,7 @@ func main() {
 		RegisterAddress: registerAddress,
 		AuthKey:         c.AuthKey,
 		ProxyAddress:    proxyAddress,
-		connMaxFree:     10,
+		connMaxFree:     c.MaxFreeConn,
 		connChangeSign:  make(chan bool, 90),
 	}
 	log.Println("start success")
