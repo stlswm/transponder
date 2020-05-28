@@ -84,7 +84,8 @@ git clone https://gitee.com/stlswm/transponder.git
         {
             "RegisterAddress": "tcp://外网服务器ip:9090",//外网服务器对内网服务器的地址（这里填写外网服务器的InnerServerAddress）
             "ProxyAddress": "tcp://127.0.0.1:80",//本地目标服务
-            "AuthKey":"123456"//连接授权码（内外网必须保持一致）
+            "AuthKey":"123456",//连接授权码（内外网必须保持一致）
+            "MaxFreeConn": 50//最大空闲连接数，并发数高时可适当增大该参数
         }
     
 4. 启动
